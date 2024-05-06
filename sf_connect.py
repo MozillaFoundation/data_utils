@@ -70,7 +70,7 @@ class sf_connect:
             replace = re.compile('(from|\s)', re.IGNORECASE)
 
             #Search the input query
-            result = re.search(search_object, query)
+            result = re.search(search_object, self.query)
 
             try:
                 #Replace the strings to only get the object.
