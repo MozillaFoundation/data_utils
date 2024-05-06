@@ -1,0 +1,8 @@
+urlparse
+numpy
+pandas
+re
+requests
+simple_salesforce
+json
+os
