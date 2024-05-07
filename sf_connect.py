@@ -27,7 +27,8 @@ DTYPE_MAPPER = {'objecting': 'object'
                 ,'location': 'object'
                 ,'currency': 'object'
                 ,'address': 'object'
-                ,'string': 'object'}
+                ,'string': 'object'
+                ,'url': 'object'}
 
 class sf_connect:
     def __init__(self):
