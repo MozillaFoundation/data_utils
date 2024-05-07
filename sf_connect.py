@@ -7,26 +7,27 @@ import requests
 import re
 import csv
 from datetime import date, datetime
-from numpy import float64, int64
+from numpy import float64, int64, dtype
 
-#Salesforce reference of data types 
+#Salesforce reference of data types and the corresponding pandas dtype
 #https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/field_types.htm
-DTYPE_MAPPER = {'string': str
-                ,'double': float64
-                ,'boolean': bool
-                ,'textarea': str
-                ,'date': date
-                ,'datetime': datetime
-                ,'id': str
-                ,'masterrecord': str
-                ,'reference': str
-                ,'email': str
-                ,'picklist': str
-                ,'phone': str
-                ,'percent': float64
-                ,'location': str
-                ,'currency': str
-                ,'address': str}
+DTYPE_MAPPER = {'objecting': 'object'
+                ,'double': 'float64'
+                ,'boolean': 'bool'
+                ,'textarea': 'object'
+                ,'date': 'date'
+                ,'datetime': 'datetime'
+                ,'id': 'object'
+                ,'masterrecord': 'object'
+                ,'reference': 'object'
+                ,'email': 'object'
+                ,'picklist': 'object'
+                ,'phone': 'object'
+                ,'percent': 'float64'
+                ,'location': 'object'
+                ,'currency': 'object'
+                ,'address': 'object'
+                ,'string': 'object'}
 
 class sf_connect:
     def __init__(self):
@@ -73,7 +74,7 @@ class sf_connect:
             result = re.search(search_object, self.query)
 
             try:
-                #Replace the strings to only get the object.
+                #Replace the objectings to only get the object.
                 self.sf_object = re.sub(replace, '', result[0])
                 #Return the salesforce object.
                 #return sf_object
@@ -94,12 +95,14 @@ class sf_connect:
             from_dtypes = {c.get('name'): c.get('type') for c in self.api_object.describe().get('fields')}
     
             #Connect to the object via bulk2
+            print('Querying data from Salesforce for the {} object...'.format(self.sf_object))
             results = self.bulk2_object.query(self.query)
-
+            print('Query completed.')
         #Otherwise raise any exceptions from the Salesforce class or otherwise
         except Exception as e:
             raise(e)
-            
+
+        print('Parsing query results...')    
         csv_data = [r for r in results]
 
         df_list = []
@@ -116,10 +119,33 @@ class sf_connect:
             df_list.append(pd.DataFrame([row for row in reader if row], columns = [c for c in col_reader]))
         
         if df_list:
+            print('Converting results to dataframe...')
             #Concatenate the df_list
             self.data = pd.concat(df_list)
-    
+            #In some cases the columns may end up as a multi-index, reset them to just an index
+            self.data.columns = self.data.columns.get_level_values(0)
             #Map these data types to the appropriate pandas data types
             self.to_dtypes = {k: DTYPE_MAPPER.get(v) for k,v in from_dtypes.items() if k in self.data.columns}
 
-        #return data
+            #Create a dictionary of the existing dtypes
+            dtypes_dict = self.data.dtypes.apply(lambda x: x.name).to_dict()
+
+            #Loop through each column, compare the dtypes and change them if appropriate
+            print('Converting data types...')
+            for c in self.data.columns:               
+                to_dtype = self.to_dtypes.get(c)
+                #If the datatypes are not equal follow the specified procedures
+                if to_dtype != dtypes_dict.get(c):
+                    print('Converting column {} to {}...'.format(c, to_dtype))   
+                    #If the to_dtype is a date then convert the column to a datetime.date
+                    if to_dtype == 'date':
+                        self.data[c] = self.data.apply(lambda x: datetime.strptime(x[c], '%Y-%m-%d').date(), axis = 1)
+                    #Else if the to_dtype is a datetime then convert the column to a datetime.datetime
+                    elif to_dtype == 'datetime':
+                        self.data[c] = self.data.apply(lambda x: datetime.strptime(x[c], '%Y-%m-%dT%H:%M:%S.%f%z'), axis = 1)
+                    #Else use the astype method for conversion as it functions the same for the other dtypes
+                    else:
+                        self.data[c] = self.data[c].astype(dtype(to_dtype))
+
+                else:
+                    pass
