@@ -136,7 +136,8 @@ class sf_connect:
             for c in self.data.columns:               
                 to_dtype = self.to_dtypes.get(c)
                 #If the datatypes are not equal follow the specified procedures
-                if to_dtype != dtypes_dict.get(c):
+                #This currently fails for cross-referenced objects, like referencing Campaign.Name when quering CampaignMembers
+                if (to_dtype != dtypes_dict.get(c)) and (to_dtype is not None):
                     print('Converting column {} to {}...'.format(c, to_dtype))   
                     #If the to_dtype is a date then convert the column to a datetime.date
                     if to_dtype == 'date':
