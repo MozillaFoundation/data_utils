@@ -26,7 +26,6 @@ DTYPE_MAPPER = {'objecting': 'object'
                 ,'phone': 'object'
                 ,'percent': 'float64'
                 ,'location': 'object'
-                ,'currency': 'object'
                 ,'address': 'object'
                 ,'string': 'object'
                 ,'url': 'object'}
