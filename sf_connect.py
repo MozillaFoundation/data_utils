@@ -14,6 +14,7 @@ from numpy import float64, int64, dtype
 DTYPE_MAPPER = {'objecting': 'object'
                 ,'double': 'float64'
                 ,'boolean': 'bool'
+                ,'currency': 'float64'
                 ,'textarea': 'object'
                 ,'date': 'date'
                 ,'datetime': 'datetime'
