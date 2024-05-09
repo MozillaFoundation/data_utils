@@ -145,6 +145,9 @@ class sf_connect:
                     #Else if the to_dtype is a datetime then convert the column to a datetime.datetime
                     elif to_dtype == 'datetime':
                         self.data[c] = self.data.apply(lambda x: datetime.strptime(x[c], '%Y-%m-%dT%H:%M:%S.%f%z'), axis = 1)
+                    #Else if the to_dtype is a boolean then convert the strings to a boolean
+                    elif to_dtype == 'bool':
+                        self.data[c].apply(lambda x: True if x[c] == 'true' else (False if x[c] == 'false' else nan), axis = 1)
                     #Else use the astype method for conversion as it functions the same for the other dtypes
                     else:
                         self.data[c] = self.data[c].astype(dtype(to_dtype))
