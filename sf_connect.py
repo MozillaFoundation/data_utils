@@ -7,7 +7,7 @@ import requests
 import re
 import csv
 from datetime import date, datetime
-from numpy import float64, int64, dtype
+from numpy import float64, int64, dtype, nan
 
 #Salesforce reference of data types and the corresponding pandas dtype
 #https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/field_types.htm
