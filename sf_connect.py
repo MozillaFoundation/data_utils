@@ -151,7 +151,7 @@ class sf_connect:
                     #Else use the astype method for conversion as it functions the same for the other dtypes
                     else:
                         #Fill empty values with Nan
-                        self.data[c] = self.data[c].fillna('', nan)
+                        self.data[c] = self.data[c].replace('', nan)
                         self.data[c] = self.data[c].astype(dtype(to_dtype))
 
 
