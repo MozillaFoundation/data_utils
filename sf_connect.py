@@ -150,7 +150,10 @@ class sf_connect:
                         self.data[c] = self.data.apply(lambda x: True if x[c] == 'true' else (False if x[c] == 'false' else nan), axis = 1)
                     #Else use the astype method for conversion as it functions the same for the other dtypes
                     else:
+                        #Fill empty values with Nan
+                        self.data[c] = self.data[c].fillna('', nan)
                         self.data[c] = self.data[c].astype(dtype(to_dtype))
+
 
                 else:
                     pass
